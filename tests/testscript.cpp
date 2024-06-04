@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
-#include "../src/Vector.h"
-#include "../src/Distance.h"
+#include "Vector.h"
+#include "Distance.h"
 
 #ifdef EED_USE_DOUBLE
 typedef double real;
@@ -36,7 +36,7 @@ real distance_gt(Vec3 x0, Vec3 x1, Vec3 x2, Vec3 x3, real &t0, real &t1)
 {
     real l = 0.0, r = 1.0;
     real a, b, da, db;
-    for (int i = 0; i < 100; i++)
+    for (int i = 0; i < 200; i++)
     {
         a = l + (r - l) / 3;
         b = l + (r - l) / 3 * 2;
@@ -88,6 +88,9 @@ int test_file(const char *filename)
     }
 
     int type_cnt[9] = {0};
+    int error_cnt = 0;
+    int total_cnt = 0;
+    real max_error = 0.0;
 
     while (true)
     {
@@ -125,22 +128,47 @@ int test_file(const char *filename)
         // std::cout << "dist: " << dist << ", dist_gt: " << dist_gt << std::endl;
 
         real diff = std::abs(dist - dist_gt);
+        max_error = std::max(max_error, diff);
+
         if (diff > 1e-6 || !type_sanity_check(type, t0, t1))
         {
+            error_cnt++;
+
+            auto e0 = x1 - x0;
+            auto e1 = x3 - x2;
+            auto x02 = x2 - x0;
+
+            // Find closest point on the two lines:
+            //   h0 = x0 + t0 * e0
+            //   h1 = x2 + t1 * e1
+
+            auto A = e0.lengthSq();
+            auto B = -e0.dot(e1);
+            auto C = e1.lengthSq();
+
+            auto D = x02.dot(e0);
+            auto E = -x02.dot(e1);
+
+            // [A B; B C] @ [t0; t1] = [D; E]
+            auto D0 = A * C - B * B;   // det(A, B; B, C), always >= 0
+
             std::cout << "x0: " << x0 << std::endl;
             std::cout << "x1: " << x1 << std::endl;
             std::cout << "x2: " << x2 << std::endl;
             std::cout << "x3: " << x3 << std::endl;
             std::cout << "dist: " << dist << ", dist_gt: " << dist_gt << std::endl;
+            std::cout << "diff: " << diff << std::endl;
             std::cout << "type: " << type << std::endl;
             std::cout << "t0: " << t0 << std::endl;
             std::cout << "t1: " << t1 << std::endl;
             std::cout << "t0_gt: " << t0_gt << std::endl;
             std::cout << "t1_gt: " << t1_gt << std::endl;
-            std::cout << "diff: " << diff << std::endl;
+            std::cout << "D0: " << D0 << std::endl;
+            std::cout << std::endl;
         }
 
         type_cnt[type]++;
+        total_cnt++;
     }
 
     file.close();
@@ -150,6 +178,9 @@ int test_file(const char *filename)
     {
         std::cout << "type " << i << ": " << type_cnt[i] << std::endl;
     }
+
+    std::cout << "error count: " << error_cnt << "/" << total_cnt << std::endl;
+    std::cout << "max error: " << max_error << std::endl;
 
     return 0;
 }

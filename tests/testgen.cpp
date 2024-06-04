@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <random>
-#include "../src/Vector.h"
+#include "Vector.h"
 
 #ifdef EED_USE_DOUBLE
 typedef double real;
@@ -38,11 +38,11 @@ int main()
             file << x0 << " " << x1 << " " << x2 << " " << x3 << std::endl;
         }
         file.close();
-        std::cout << "File written successfully." << std::endl;
+        std::cout << "File written successfully: testdata_random.txt" << std::endl;
     }
     else
     {
-        std::cout << "Failed to open file." << std::endl;
+        std::cout << "Failed to open file testdata_random.txt" << std::endl;
     }
 
     std::ofstream file2("testdata_parallel.txt");
@@ -69,11 +69,38 @@ int main()
             file2 << x0 << " " << x1 << " " << x2 << " " << x3 << std::endl;
         }
         file2.close();
-        std::cout << "File written successfully." << std::endl;
+        std::cout << "File written successfully: testdata_parallel.txt" << std::endl;
     }
     else
     {
-        std::cout << "Failed to open file." << std::endl;
+        std::cout << "Failed to open file testdata_parallel.txt" << std::endl;
+    }
+
+    std::ofstream file3("testdata_coplanar.txt");
+    if (file3.is_open())
+    {
+        for(int i = 0; i < n_samples; i++)
+        {
+            Vec3 e0 = random_vec3(gen, radius).normalize();
+            
+            Vec3 x0 = random_vec3(gen, radius);
+            Vec3 x1 = random_vec3(gen, radius);
+            Vec3 x2 = random_vec3(gen, radius);
+            Vec3 x3 = random_vec3(gen, radius);
+
+            x0 = x0 - e0 * e0.dot(x0);
+            x1 = x1 - e0 * e0.dot(x1);
+            x2 = x2 - e0 * e0.dot(x2);
+            x3 = x3 - e0 * e0.dot(x3);
+            
+            file3 << x0 << " " << x1 << " " << x2 << " " << x3 << std::endl;
+        }
+        file3.close();
+        std::cout << "File written successfully: testdata_coplanar.txt" << std::endl;
+    }
+    else
+    {
+        std::cout << "Failed to open file testdata_coplanar.txt" << std::endl;
     }
 
     return 0;

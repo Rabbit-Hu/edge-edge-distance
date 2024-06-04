@@ -56,8 +56,9 @@ namespace EED
         // std::cout << "N0: " << N0 << ", D0: " << D0 << std::endl;
         // std::cout << "N1: " << N1 << ", D1: " << D1 << std::endl;
 
-        bool no_EE = (e0.cross(e1).dot(x02) == 0.0 ||                         // coplanar
-                      e0.cross(e1).lengthSq() < parallel_sin_sq_tol * A * C); // parallel
+        // bool no_EE = (e0.cross(e1).dot(x02) == 0.0 ||                         // coplanar
+        //               e0.cross(e1).lengthSq() < parallel_sin_sq_tol * A * C); // parallel
+        bool no_EE = e0.cross(e1).lengthSq() < parallel_sin_sq_tol * A * C;
 
         if (N0 <= 0.0 || (no_EE && N0 < D0 * 0.5)) // the t0=0 edge of the square is visible
         {
@@ -75,31 +76,6 @@ namespace EED
         }
         else
         {
-            // if (N1 > 0.0 && N1 < D1 &&
-            //     (e0.cross(e1).dot(x02) == 0.0 ||                         // coplanar
-            //      e0.cross(e1).lengthSq() < parallel_sin_sq_tol * A * C)) // parallel
-            // {
-            //     std::cout << "Parallel or coplanar edges detected" << std::endl;
-            //     // Ban EEType::EE, choose from the PP and PE types
-            //     if (N0 < D0 * 0.5)
-            //     {
-            //         N1 = E;
-            //         D1 = C;
-            //         t0 = 0.0;
-            //         type = EEType::PE023; // if 0<t1<1 then return type = PE023
-            //     }
-            //     else
-            //     {
-            //         N1 = E - B;
-            //         D1 = C;
-            //         t0 = 1.0;
-            //         type = EEType::PE123; // if 0<t1<1 then return type = PE123
-            //     }
-            // }
-            // else
-            // {
-            //     t0 = N0 / D0; // type = EEType::EE
-            // }
             t0 = N0 / D0; // type = EEType::EE
         }
 
